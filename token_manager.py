@@ -35,7 +35,7 @@ TOKEN_TXT = Path(__file__).with_name("bearer_token.txt")
 REFRESH_EVERY = 30 * 2   # 30 минут
 
 # --- Bot Configuration -----------------------------------------------------
-BOT_ID = 7686366470  # ID бота (stickerdom_bot)
+BOT_USERNAME = "@sticker_bot"  # Публичное @username бота
 WEB_APP_URL = "https://app.stickerdom.store/"
 
 
@@ -65,7 +65,7 @@ async def _fetch_token(tg_client: TelegramClient) -> None:
     3. Сохраняет токен в файл.
     """
     print("Запрос данных Web App у Telegram...")
-    bot_entity = await tg_client.get_entity(BOT_ID)
+    bot_entity = await tg_client.get_entity(BOT_USERNAME)
     result = await tg_client(RequestWebViewRequest(
         peer=bot_entity,
         bot=bot_entity,
