@@ -4,14 +4,13 @@ from telethon.sync import TelegramClient
 from telethon.tl.types import InputInvoiceSlug
 from telethon.tl.functions.payments import GetPaymentFormRequest, SendStarsFormRequest
 from token_manager import get_bearer
+import config
 
 # --- Credentials ---
-# PLEASE FILL THESE IN
-# 1. Get your api_id and api_hash from my.telegram.org
-# 2. The session_name is just a file that will be created to store your session.
-API_ID = 123   # Replace with your API ID
-API_HASH = ""  # Replace with your API HASH
-SESSION_NAME = "telegram_session"
+# Все креды теперь в config.py. Этот скрипт использует их для подключения к Telegram.
+API_ID = config.API_ID
+API_HASH = config.API_HASH
+SESSION_NAME = config.SESSION_NAME
 
 # --- Sticker API Configuration ---
 # BEARER_TOKEN is now loaded from a file via get_bearer().
