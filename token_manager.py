@@ -35,11 +35,11 @@ TOKEN_TXT = Path(__file__).with_name("bearer_token.txt")
 REFRESH_EVERY = 30 * 2   # 30 минут
 
 # --- Bot Configuration -----------------------------------------------------
-BOT_USERNAME = "@sticker_bot"  # Публичное @username бота
+BOT_USERNAME = "sticker_bot"  # Публичное @username бота
 WEB_APP_URL = "https://app.stickerdom.store/"
 
 
-# ---------------------------------------------------------------------------
+# --------------------------------------------------7910-------------------------
 # Public helpers
 # ---------------------------------------------------------------------------
 
