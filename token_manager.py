@@ -28,16 +28,20 @@ except ImportError:
     print("🚨 Не найден файл config.py. Пожалуйста, создайте его, скопировав из config.py.example")
     sys.exit(1)
 
+# --- Project-wide parameters ------------------------------------------------
+from params import AUTH_URL, BOT_USERNAME, WEB_APP_URL, REFRESH_EVERY
 
 # --- API details -----------------------------------------------------------
-AUTH_URL = "https://api.stickerdom.store/api/v1/auth"
-TOKEN_TXT = Path(__file__).with_name("bearer_token.txt")
-REFRESH_EVERY = 30 * 2   # 30 минут
+# AUTH_URL = "https://api.stickerdom.store/api/v1/auth"
+# TOKEN_TXT = Path(__file__).with_name("bearer_token.txt")
+# REFRESH_EVERY = 30 * 2   # 30 минут
 
 # --- Bot Configuration -----------------------------------------------------
-BOT_USERNAME = "sticker_bot"  # Публичное @username бота
-WEB_APP_URL = "https://app.stickerdom.store/"
+# BOT_USERNAME = "sticker_bot"  # Публичное @username бота
+# WEB_APP_URL = "https://app.stickerdom.store/"
 
+# Путь к файлу Bearer-токена остаётся локальной константой
+TOKEN_TXT = Path(__file__).with_name("bearer_token.txt")
 
 # --------------------------------------------------7910-------------------------
 # Public helpers
@@ -125,18 +129,23 @@ async def _worker() -> None:
         print("🚨 ВНИМАНИЕ: Откройте config.py и укажите ваши API_ID и API_HASH.")
         return
 
-    async with TelegramClient(config.SESSION_NAME, config.API_ID, config.API_HASH) as tg_client:
-        me = await tg_client.get_me()
-        print(f"Авторизация в Telegram как: {me.first_name}")
-        
-        while True:
-            try:
+    # В открытом виде клиент держит lock на SQLite-файле сессии. Чтобы
+    # не мешать другим скриптам (например, purchase_sticker.py)
+    # пользоваться тем же SESSION_NAME, открываем клиент только на
+    # время запроса, а затем сразу закрываем контекст.
+
+    while True:
+        try:
+            async with TelegramClient(config.SESSION_NAME, config.API_ID, config.API_HASH) as tg_client:
+                me = await tg_client.get_me()
+                print(f"Авторизация в Telegram как: {me.first_name}")
+
                 await _fetch_token(tg_client)
-            except Exception as exc:
-                print(f"❌ Token refresh error: {exc}")
-            
-            print(f"Ожидание {REFRESH_EVERY // 60} минут перед следующим обновлением...")
-            await asyncio.sleep(REFRESH_EVERY)
+        except Exception as exc:
+            print(f"❌ Token refresh error: {exc}")
+
+        print(f"Ожидание {REFRESH_EVERY // 60} минут перед следующим обновлением...")
+        await asyncio.sleep(REFRESH_EVERY)
 
 
 # ---------------------------------------------------------------------------

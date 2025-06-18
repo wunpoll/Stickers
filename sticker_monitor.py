@@ -5,24 +5,29 @@ import purchase_sticker
 import asyncio
 import nest_asyncio
 from token_manager import get_bearer
+from params import BASE_URL, CHECK_INTERVAL_SECONDS, LAST_ID_FILE, PURCHASE_COUNT, CHARACTER_ID
 
 # --- Configuration ---
 # The base URL for the sticker collections API endpoint.
 # We will append the sticker ID to this URL.
-BASE_URL = "https://api.stickerdom.store/api/v1/collection/"
+# BASE_URL = "https://api.stickerdom.store/api/v1/collection/"
 
 # Time to wait in seconds between checks if no new sticker is found.
-CHECK_INTERVAL_SECONDS = 5 
+# CHECK_INTERVAL_SECONDS = 5 
 
 # File to store the ID of the last successfully found sticker.
-LAST_ID_FILE = "last_sticker_id.txt"
+# LAST_ID_FILE = "last_sticker_id.txt"
 
 # How many times to attempt purchasing each new collection.
-PURCHASE_COUNT = 10
+# PURCHASE_COUNT = 10
+
+# CHARACTER_ID = 2
 
 # BEARER_TOKEN is now loaded dynamically from a file.
 
 # --- End of Configuration ---
+
+# Конфигурация теперь живёт в params.py
 
 def read_last_id():
     """Reads the last sticker ID from the state file."""
@@ -52,7 +57,7 @@ def main():
         while True:
             id_to_check = last_id + 1
             url = f"{BASE_URL}{id_to_check}"
-
+            print(url)
             try:
                 print(f"Checking for sticker with ID: {id_to_check}...")
                 
@@ -79,11 +84,12 @@ def main():
                     for attempt in range(1, PURCHASE_COUNT + 1):
                         print(f"🎯 Purchase attempt {attempt}/{PURCHASE_COUNT} for collection {id_to_check}…")
                         try:
-                            asyncio.run(purchase_sticker.main(collection_id=id_to_check, character_id=2))
+                            # Запускаем напрямую асинхронную функцию purchase_once
+                            asyncio.run(purchase_sticker.purchase_once(collection_id=id_to_check, character_id=CHARACTER_ID))
                         except RuntimeError:
-                            # Event loop already running (rare in pure scripts), fallback
+                            # Если event-loop уже запущен (редко), разрешаем вложенный запуск
                             nest_asyncio.apply()
-                            asyncio.run(purchase_sticker.main(collection_id=id_to_check, character_id=2))
+                            asyncio.run(purchase_sticker.purchase_once(collection_id=id_to_check, character_id=CHARACTER_ID))
                         except Exception as e:
                             print(f"🚨 Purchase attempt {attempt} failed: {e}")
                         time.sleep(1)  # slight delay between attempts to avoid spamming the API

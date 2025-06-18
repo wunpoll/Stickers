@@ -5,6 +5,7 @@ from telethon.tl.types import InputInvoiceSlug
 from telethon.tl.functions.payments import GetPaymentFormRequest, SendStarsFormRequest
 from token_manager import get_bearer
 import config
+from params import CHARACTER_ID
 
 # --- Credentials ---
 # Все креды теперь в config.py. Этот скрипт использует их для подключения к Telegram.
@@ -16,11 +17,11 @@ SESSION_NAME = config.SESSION_NAME
 # BEARER_TOKEN is now loaded from a file via get_bearer().
 # --- End of Configuration ---
 
-def get_payment_url(collection_id: int, character_id: int = 2):
+def get_payment_url(collection_id: int, character_id: int = CHARACTER_ID):
     """Calls the sticker API to get a Telegram payment URL for the given collection/character."""
-    print(f"Getting payment URL for collection {collection_id}, character {character_id}…")
+    print(f"Getting payment URL for collection {collection_id}, character {CHARACTER_ID}…")
     url = "https://api.stickerdom.store/api/v1/shop/buy"
-    params = {"collection": collection_id, "character": character_id}
+    params = {"collection": collection_id, "character": CHARACTER_ID}
     try:
         bearer_token = get_bearer()
         headers = {
@@ -41,9 +42,9 @@ def get_payment_url(collection_id: int, character_id: int = 2):
         print(f"🚨 Error calling StickerDom API or getting token: {e}")
         return None
 
-async def purchase_once(collection_id: int, character_id: int = 2):
+async def purchase_once(collection_id: int, character_id: int = CHARACTER_ID):
     """Perform a single purchase attempt for the given collection/character."""
-    payment_url = get_payment_url(collection_id, character_id)
+    payment_url = get_payment_url(collection_id, CHARACTER_ID)
     if not payment_url:
         return
 
@@ -99,7 +100,7 @@ async def purchase_once(collection_id: int, character_id: int = 2):
             print(f"🚨 An error occurred with Telethon: {e}")
             print("This could be because the invoice is expired, the slug is wrong, or another issue.")
 
-def main(collection_id: int, character_id: int = 2):
+def main(collection_id: int, character_id: int = CHARACTER_ID):
     """Entry point used by other modules. Runs purchase_once with proper event-loop handling."""
     try:
         loop = asyncio.get_running_loop()
@@ -107,9 +108,9 @@ def main(collection_id: int, character_id: int = 2):
         loop = None
 
     if loop and loop.is_running():
-        return asyncio.create_task(purchase_once(collection_id, character_id))
+        return asyncio.create_task(purchase_once(collection_id, CHARACTER_ID))
     else:
-        asyncio.run(purchase_once(collection_id, character_id))
+        asyncio.run(purchase_once(collection_id, CHARACTER_ID))
 
 
 if __name__ == "__main__":
